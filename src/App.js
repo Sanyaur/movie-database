@@ -24,7 +24,18 @@ function App() {
   const apiCallHandler = () => {
     fetch("https://swapi.dev/api/films")
       .then((response) => response.json())
-      .then((data) => setMovies(data.results));
+      .then((data) => {
+        // mapping original API content to create new Objects with necessary informations only
+        const transformedMovies = data.results.map((movie) => {
+          return {
+            id: movie.episode_id,
+            title: movie.title,
+            releaseDate: movie.release_date,
+            openingText: movie.opening_crawl,
+          };
+        });
+        setMovies(transformedMovies);
+      });
   };
 
   return (
