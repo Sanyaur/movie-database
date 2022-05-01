@@ -25,15 +25,19 @@ function App() {
     const response = await fetch("https://swapi.dev/api/films");
     const data = await response.json();
 
-    // mapping original API content to create new Objects with necessary informations only
-    const transformedMovies = data.results.map((movie) => {
+    // mapping original API content to create new Objects with proper informations only
+    const transformedMovies = data.results.map((movieObject) => {
+      // destructuring movieObject for better readability
+      const { episode_id, title, opening_crawl, release_date } = movieObject;
+      // returning new object with proper data
       return {
-        id: movie.episode_id,
-        title: movie.title,
-        releaseDate: movie.release_date,
-        openingText: movie.opening_crawl,
+        id: episode_id,
+        title: title,
+        openingText: opening_crawl,
+        releaseDate: release_date,
       };
     });
+
     setMovies(transformedMovies);
   };
 
