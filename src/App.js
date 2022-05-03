@@ -2,43 +2,45 @@ import React, { useState } from "react";
 
 import MoviesList from "./components/MoviesList";
 import "./App.css";
+import Loader from "./components/Loader";
 
 function App() {
   const [movies, setMovies] = useState([]);
-
-  const dummyMovies = [
-    {
-      id: 1,
-      title: "Some Dummy Movie",
-      openingText: "This is the opening text of the movie",
-      releaseDate: "2021-05-18",
-    },
-    {
-      id: 2,
-      title: "Some Dummy Movie 2",
-      openingText: "This is the second opening text of the movie",
-      releaseDate: "2021-05-19",
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const apiCallHandler = async () => {
-    const response = await fetch("https://swapi.dev/api/films");
+    setIsLoading(true);
+    const response = await fetch("https://swapi.dev/api/films/");
     const data = await response.json();
 
-    // mapping original API content to create new Objects with proper informations only
-    const transformedMovies = data.results.map((movieObject) => {
-      // destructuring movieObject for better readability
-      const { episode_id, title, opening_crawl, release_date } = movieObject;
-      // returning new object with proper data
-      return {
-        id: episode_id,
-        title: title,
-        openingText: opening_crawl,
-        releaseDate: release_date,
-      };
-    });
+    console.log(response);
 
-    setMovies(transformedMovies);
+    try {
+      // error handling
+      if (!response.ok) {
+        throw new Error("Something went wrong!");
+      }
+
+      // mapping original API content to create new Objects with proper informations only
+      const transformedMovies = data.results.map((movieObject) => {
+        // destructuring movieObject for better readability
+        const { episode_id, title, opening_crawl, release_date } = movieObject;
+        // returning new object with proper data
+        return {
+          id: episode_id,
+          title: title,
+          openingText: opening_crawl,
+          releaseDate: release_date,
+        };
+      });
+
+      setMovies(transformedMovies);
+    } catch (error) {
+      console.log(error.message);
+      setError(error.message);
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -47,7 +49,17 @@ function App() {
         <button onClick={apiCallHandler}>Fetch Movies</button>
       </section>
       <section>
-        <MoviesList movies={movies.length > 0 ? movies : dummyMovies} />
+        {isLoading ? (
+          <Loader />
+        ) : error ? (
+          <p>{error}</p>
+        ) : movies.length > 0 ? (
+          <MoviesList movies={movies} />
+        ) : (
+          <p>
+            No movies yet. Click on <b>Fetch movies</b>
+          </p>
+        )}
       </section>
     </React.Fragment>
   );
